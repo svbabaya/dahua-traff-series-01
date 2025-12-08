@@ -1,2 +1,2 @@
 # dahua-traff-series-01
-TraffiXtream for DHOP
+Separated server TraffiXtream of camera for DHOP

@@ -1,0 +1,116 @@
+#ifndef __UTILS_TRAFF_H__
+#define __UTILS_TRAFF_H__
+
+#include "_common.h"
+#include <string>
+
+// Statistics
+struct TraffStat {
+	int id;
+	int period;
+	int videoOk;
+	std::string reserv;
+	std::string sensName;
+	float distanceLengthKm;
+	std::string time;
+	int counter, speed;
+	float k;
+	int occup;
+	int Cnt0, Cnt1, Cnt2, Cnt3, Cnt4;
+	int Spd0, Spd1, Spd2, Spd3, Spd4;
+	float gap;
+	int headway;
+	int negcnt;
+	int totalCounter;
+	bool carDetected, carDetected_sensor;
+	int curCounter, curSpeed, curCnt[5];
+	float curLength;
+	std::string curClass;
+	int lastAvgCounter;
+	TraffStat();
+	void resetStat();
+	void clear();
+};
+
+// Params
+struct TraffAvgParams {
+	int bigAvgInterval, smallAvgInterval;
+	TraffAvgParams() {
+		bigAvgInterval = 300;
+		smallAvgInterval = 300;
+	}
+};
+
+struct TraffAlgParams {
+	int BINARIZATION_THRESHOLD, SHADOW_DARK_THRESHOLD, SHADOW_MAX_UPPER_THRESHOLD, SHADOW_RANGE,
+		OBJECT_ENTER_POINTS_COUNT, OBJECT_EXIT_POINTS_COUNT, INCREASED_OBJECT_ENTER_POINTS_COUNT,
+		INCREASED_OBJECT_EXIT_POINTS_COUNT, CATCH_MOTION_POINTS_COUNT, CATCH_SLOW_MOTION_POINTS_COUNT,
+		CATCH_NO_MOTION_POINTS_COUNT, CATCH_BACKGROUND_DIFFERENCE_POINTS_COUNT, CATCH_FRAME_MOTION_REPEAT_COUNT,
+		CATCH_FRAME_STABLE_REPEAT_COUNT, CATCH_INTER_ZONE_FRAME_DIFFERENCE_JUMP_TIME_MSEC,
+		CATCH_INTER_ZONE_NO_MOTION_WAS_FOUND_TIME_MSEC, CATCH_TIME_TO_FIND_STABLE_INTERVAL_SEC,
+		CATCH_CHECK_JAM_MAX_TIME_INTERVAL_MSEC,
+		CAR_EXIT_ENTER_INTERVAL_MSEC, SHADOW_MAX_WRONG_POINTS, LIGHT_BEAM_MAX_WRONG_POINTS,
+		OBJECT_CONFIRMATION_POINTS, LIGHT_BEAM_MAX_THRESHOLD, JAM_CAR_IN_ZONE_TIME_SEC,
+		SENSOR_PARALLEL_WORK, RGB_FRAME, TRACKER, SM_DATA_WAKEUP, SENSOR_MAXLOCK_TIME_SEC;
+
+	TraffAlgParams() {
+		BINARIZATION_THRESHOLD = 30;
+		SHADOW_MAX_UPPER_THRESHOLD = 90;
+		SHADOW_DARK_THRESHOLD = 30;
+		SHADOW_RANGE = 60;
+		LIGHT_BEAM_MAX_THRESHOLD = 250;
+		SHADOW_MAX_WRONG_POINTS = 50;
+		LIGHT_BEAM_MAX_WRONG_POINTS = 50;
+		OBJECT_CONFIRMATION_POINTS = 200;
+		OBJECT_ENTER_POINTS_COUNT = 1300;
+		OBJECT_EXIT_POINTS_COUNT = 300;
+		JAM_CAR_IN_ZONE_TIME_SEC = 4;
+		INCREASED_OBJECT_ENTER_POINTS_COUNT = 2000;
+		INCREASED_OBJECT_EXIT_POINTS_COUNT = 600;
+		CAR_EXIT_ENTER_INTERVAL_MSEC = 250;
+		CATCH_SLOW_MOTION_POINTS_COUNT = 1500;
+		CATCH_MOTION_POINTS_COUNT = 700;
+		CATCH_FRAME_MOTION_REPEAT_COUNT = 1;
+		CATCH_INTER_ZONE_FRAME_DIFFERENCE_JUMP_TIME_MSEC = 500;
+		CATCH_NO_MOTION_POINTS_COUNT = 150;
+		CATCH_CHECK_JAM_MAX_TIME_INTERVAL_MSEC = 1000;
+		CATCH_INTER_ZONE_NO_MOTION_WAS_FOUND_TIME_MSEC = 80;
+		CATCH_BACKGROUND_DIFFERENCE_POINTS_COUNT = 100;
+		CATCH_FRAME_STABLE_REPEAT_COUNT = 2;
+		CATCH_TIME_TO_FIND_STABLE_INTERVAL_SEC = 4;
+		SENSOR_PARALLEL_WORK = 1;
+		RGB_FRAME = 1;
+		TRACKER = 1;
+		SM_DATA_WAKEUP = 1;
+		SENSOR_MAXLOCK_TIME_SEC = 120;
+	}
+	static std::string algParams2text(const TraffAlgParams &pars);
+	static TraffAlgParams readAlgParamsFromFile(bool &isOpened, std::string fname);
+};
+
+#ifdef TraffiX_TRACKER
+enum TrackState {
+	NONE,
+	MOVE,
+	STOP,
+	LOST,
+	RESULT
+};
+
+enum SensorState {
+	z1Enter,
+	z2Enter,
+	z1Exit,
+	z2Exit,
+	newFrame
+};
+
+struct TrackResult {
+	TrackState st;
+	float speedKmH, lengthM;
+	TrackResult(TrackState _st = NONE)
+		: st(_st), speedKmH(0), lengthM(0) {}
+};
+#endif //#ifdef TraffiX_TRACKER
+
+#endif //__UTILS_TRAFF_H__
