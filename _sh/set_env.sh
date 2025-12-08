@@ -22,4 +22,3 @@ if [ -d "/opt/dhop_sdk/Tools" ]; then
 else
     echo "Warning: /opt/dhop_sdk/Tools not found"
 fi
-

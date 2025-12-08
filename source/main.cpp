@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <libgen.h>
-//#include <licensekey.h>
+// #include <licensekey.h> // axis sdk library
 
 #include <sys/types.h>
 #include <sys/socket.h>

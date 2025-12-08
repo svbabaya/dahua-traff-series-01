@@ -7,7 +7,14 @@
 
 #define COMPENSATE_LIGHTCHANGE 1
 
-// #define TraffiX_TRACKER // For arm
+#define TraffiX_TRACKER // For arm
+
+// #define _FixPoint_ // What is it for?
+// #define _NO_OCV_ // What is it for?
+// #define LOGINFO // What is it for?
+// #define PRINT_TIME // What is it for?
+// #define USE_GLARE // What is it for?
+// #define SRVTEST_PRINT // What is it for?
 
 #define APP_ID 50001
 
