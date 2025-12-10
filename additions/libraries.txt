@@ -1,0 +1,20 @@
+# OpenCV core libraries (must be in this order)
+OPENCV_LIBS = -lopencv_features2d \
+              -lopencv_flann \
+              -lopencv_video \
+              -lopencv_imgproc \
+              -lopencv_highgui \
+              -lopencv_core
+
+# OpenCV 3rd party dependencies
+OPENCV_3RDPARTY = -llibjpeg \
+                  -lzlib
+
+# System libraries (order matters)
+SYS_LIBS = -lrt \
+           -lpthread \
+           -lm \
+           -ldl \
+           -lstdc++
+
+

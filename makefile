@@ -12,9 +12,18 @@ COMM_SEGMENTDET = common/segmentTracker/
 COMM_OPENCV_L = common/opencv/arm/lib/
 COMM_OPENCV_LE = common/opencv/arm/3rdparty/lib/
 
-CFLAGS += -Wall -O2 -Isource -I$(COMM) -I$(COMM_SERV) -I$(COMM_TRAF) -I$(COMM_OPENCV_I) -I$(COMM_FEATUREDET) -I$(COMM_SEGMENTDET) 
+ARCH_FLAGS = -mcpu=cortex-a7 -mfloat-abi=hard -mfpu=neon-vfpv4
 
-LDFLAGS += -lpthread -lrt # Put away -lcapture, -llicensekey_stat, -llicensekey
+OPTIM_FLAGS = -O2 -fomit-frame-pointer -ffast-math -ftree-vectorize
+
+CFLAGS += $(ARCH_FLAGS) $(OPTIM_FLAGS)
+CFLAGS += -Wall -Wextra -Wno-unknown-pragmas
+CFLAGS += -Isource -I$(COMM) -I$(COMM_SERV) -I$(COMM_TRAF) -I$(COMM_OPENCV_I) -I$(COMM_FEATUREDET) -I$(COMM_SEGMENTDET)
+
+CXXFLAGS = $(CFLAGS)
+CXXFLAGS += -std=c++11 -fno-rtti -fexceptions
+
+LDFLAGS += $(ARCH_FLAGS) -lpthread -lrt # Put away -lcapture, -llicensekey_stat, -llicensekey
 
 LOPENCV = -L$(COMM_OPENCV_L) -lopencv_features2d -lopencv_flann -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_core -L$(COMM_OPENCV_LE) -llibjpeg -lzlib -lrt -lpthread -lm -ldl -lstdc++
 
@@ -23,7 +32,7 @@ SRCS = source/main.cpp $(COMM)signalhandler.cpp $(COMM)capturehandler.cpp $(COMM
 OBJS = $(SRCS:.cpp=.o)
 
 %.o: %.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 define del_obj
 	rm -f source/*.o
@@ -33,14 +42,25 @@ define del_obj
  	rm -f $(COMM_FEATUREDET)*.o
  	rm -f $(COMM_SEGMENTDET)*.o
 endef
-
-all: $(PROGS)
+    
+# Debug mode
+debug: $(PROGS)
 	$(call del_obj)
+
+# Release mode
+release: $(PROGS)
+	$(call del_obj)
+	arm-himix200-linux-v2-strip --strip-unneeded $(PROGS)
+
+# Make release by default
+all: release    
 
 $(PROGS): $(OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LIBS) $(LDLIBS) $(LOPENCV) -o $@
-
+    
 clean:
 	rm -f $(PROGS) *.o core
 	rm -f *.tar
 	$(call del_obj)
+
+.PHONY: all clean debug release
