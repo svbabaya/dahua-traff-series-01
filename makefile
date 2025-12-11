@@ -1,20 +1,40 @@
+# How to use: make [release | debug | clean | strip]
+
 CXX = arm-himix200-linux-v2-g++
 
 PROGS = TraffiXtreamS
 
-COMM = common/
-COMM_SERV = common/server/
-COMM_TRAF = common/traffix/
-COMM_OPENCV_I = common/opencv/include/
-COMM_FEATUREDET = common/featureTracker/
-COMM_SEGMENTDET = common/segmentTracker/
+COMM = common
+COMM_SERV = common/server
+COMM_TRAF = common/traffix
+COMM_OPENCV_I = common/opencv/include
+COMM_FEATUREDET = common/featureTracker
+COMM_SEGMENTDET = common/segmentTracker
 
-COMM_OPENCV_L = common/opencv/arm/lib/
-COMM_OPENCV_LE = common/opencv/arm/3rdparty/lib/
+COMM_OPENCV_L = common/opencv/arm/lib
+COMM_OPENCV_LE = common/opencv/arm/3rdparty/lib
 
 ARCH_FLAGS = -mcpu=cortex-a7 -mfloat-abi=hard -mfpu=neon-vfpv4
 
-OPTIM_FLAGS = -O2 -fomit-frame-pointer -ffast-math -ftree-vectorize
+# Flafs for optimization
+DEBUG_OPTIM = -O0 -g -DDEBUG
+RELEASE_OPTIM = -O2 -fomit-frame-pointer -ffast-math -ftree-vectorize -DNDEBUG
+
+# Base flags
+BASE_CFLAGS = $(ARCH_FLAGS) -Wall -Wextra -Wno-unknown-pragmas
+BASE_CFLAGS += -Isource -I$(COMM) -I$(COMM_SERV) -I$(COMM_TRAF) -I$(COMM_OPENCV_I) -I$(COMM_FEATUREDET) -I$(COMM_SEGMENTDET)
+
+# Variable for mode choice (debug or release)
+BUILD_TYPE ?= release
+
+# Choose flags for debug or release
+ifeq ($(BUILD_TYPE),debug)
+    OPTIM_FLAGS = $(DEBUG_OPTIM)
+    STRIP_CMD = @echo "Debug build - skipping strip"
+else
+    OPTIM_FLAGS = $(RELEASE_OPTIM)
+    STRIP_CMD = arm-himix200-linux-v2-strip --strip-unneeded $(PROGS)
+endif
 
 CFLAGS += $(ARCH_FLAGS) $(OPTIM_FLAGS)
 CFLAGS += -Wall -Wextra -Wno-unknown-pragmas
@@ -23,11 +43,11 @@ CFLAGS += -Isource -I$(COMM) -I$(COMM_SERV) -I$(COMM_TRAF) -I$(COMM_OPENCV_I) -I
 CXXFLAGS = $(CFLAGS)
 CXXFLAGS += -std=c++11 -fno-rtti -fexceptions
 
-LDFLAGS += $(ARCH_FLAGS) -lpthread -lrt # Put away -lcapture, -llicensekey_stat, -llicensekey
+LDFLAGS += $(ARCH_FLAGS) -lpthread -lrt
 
 LOPENCV = -L$(COMM_OPENCV_L) -lopencv_features2d -lopencv_flann -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_core -L$(COMM_OPENCV_LE) -llibjpeg -lzlib -lrt -lpthread -lm -ldl -lstdc++
 
-SRCS = source/main.cpp $(COMM)signalhandler.cpp $(COMM)capturehandler.cpp $(COMM)globals_cam.cpp $(COMM)datastructs.cpp $(COMM)utils_cam.cpp $(COMM_SERV)tcpServerSource.cpp $(COMM_SERV)tcpServerClientHandle.cpp $(COMM_SERV)tcpServerResponse.cpp $(COMM_SERV)tcpServerResponse_traff.cpp $(COMM_TRAF)utils_traff.cpp $(COMM_TRAF)traffzone.cpp $(COMM_TRAF)traffsensor.cpp $(COMM_TRAF)traffcounter.cpp $(COMM_FEATUREDET)featureTracker.cpp $(COMM_FEATUREDET)featureReg.cpp $(COMM_SEGMENTDET)segmentTracker.cpp
+SRCS = source/main.cpp $(COMM)/signalhandler.cpp $(COMM)/capturehandler.cpp $(COMM)/globals_cam.cpp $(COMM)/datastructs.cpp $(COMM)/utils_cam.cpp $(COMM_SERV)/tcpServerSource.cpp $(COMM_SERV)/tcpServerClientHandle.cpp $(COMM_SERV)/tcpServerResponse.cpp $(COMM_SERV)/tcpServerResponse_traff.cpp $(COMM_TRAF)/utils_traff.cpp $(COMM_TRAF)/traffzone.cpp $(COMM_TRAF)/traffsensor.cpp $(COMM_TRAF)/traffcounter.cpp $(COMM_FEATUREDET)/featureTracker.cpp $(COMM_FEATUREDET)/featureReg.cpp $(COMM_SEGMENTDET)/segmentTracker.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
@@ -36,31 +56,36 @@ OBJS = $(SRCS:.cpp=.o)
 
 define del_obj
 	rm -f source/*.o
-	rm -f $(COMM)*.o
-	rm -f $(COMM_SERV)*.o
-	rm -f $(COMM_TRAF)*.o
- 	rm -f $(COMM_FEATUREDET)*.o
- 	rm -f $(COMM_SEGMENTDET)*.o
+	rm -f $(COMM)/*.o
+	rm -f $(COMM_SERV)/*.o
+	rm -f $(COMM_TRAF)/*.o
+	rm -f $(COMM_FEATUREDET)/*.o
+	rm -f $(COMM_SEGMENTDET)/*.o
 endef
-    
-# Debug mode
-debug: $(PROGS)
-	$(call del_obj)
 
-# Release mode
-release: $(PROGS)
+# Base target
+all: $(PROGS)
 	$(call del_obj)
-	arm-himix200-linux-v2-strip --strip-unneeded $(PROGS)
-
-# Make release by default
-all: release    
+	$(STRIP_CMD)
 
 $(PROGS): $(OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LIBS) $(LDLIBS) $(LOPENCV) -o $@
-    
+
+# Debug mode
+debug:
+	$(MAKE) BUILD_TYPE=debug
+
+# Release mode
+release:
+	$(MAKE) BUILD_TYPE=release
+
+# Quick strip
+strip:
+	arm-himix200-linux-v2-strip --strip-unneeded $(PROGS)
+
 clean:
 	rm -f $(PROGS) *.o core
 	rm -f *.tar
 	$(call del_obj)
 
-.PHONY: all clean debug release
+.PHONY: all clean strip debug release
