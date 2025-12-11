@@ -1,3 +1,4 @@
+# Makefile ver.1
 # TraffiXtream build fo DHOP 
 # How to use: make [release | debug | clean | strip]
 

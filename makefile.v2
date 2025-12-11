@@ -1,3 +1,4 @@
+# Makefile ver.2 add separate build directory
 # TraffiXtream build for DHOP 
 # How to use: make [ all | clean | strip | debug | release | info ]
 
