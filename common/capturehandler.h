@@ -5,6 +5,9 @@
 
 #include "datastructs.h"
 
+#include "dhop_sys.h"
+#include "dhop_log.h"
+
 
 class CaptureBase {
 protected:
