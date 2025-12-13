@@ -5,17 +5,19 @@
 
 #include "datastructs.h"
 
-#include "dhop_sys.h"
-#include "dhop_log.h"
-
-
 class CaptureBase {
 protected:
 	Frame data;
 public:
 	CaptureBase() {};
-	virtual ~CaptureBase();
-	virtual void close();
+	virtual ~CaptureBase(){
+		close();
+	};
+	virtual void close(){
+		data.release();
+		data.t.tv_sec = data.t.tv_usec = 0;
+		data.rgb = data.yuv = false;
+	};
 	virtual bool open(int frameW, int frameH, bool color = false) = 0;
 	virtual const Frame handle() = 0;
 private:
@@ -23,6 +25,21 @@ private:
 	CaptureBase& operator=(const CaptureBase&);
 };
 
+
+class CaptureDahua : public CaptureBase { // No support for RGB/YUV
+private:
+	// media_native *source; // axis
+	//bool old_native;
+public:
+	CaptureDahua(/*bool oldNative = false */) {};
+	~CaptureDahua() {};
+	void close() {};
+	bool open(int frameW, int frameH, bool color = false) { return false;};
+	const Frame handle() { return Frame(); };
+private:
+	CaptureDahua(const CaptureDahua&);
+	CaptureDahua& operator=(const CaptureDahua&);
+};
 
 class CaptureNat : public CaptureBase { // No support for RGB/YUV
 private:
