@@ -8,8 +8,6 @@
 #include "dhop_log.h"
 
 
-
-
 // CaptureNV12::CaptureNV12() // axis
 // 	: source(NULL) {} // axis
 
@@ -138,14 +136,12 @@ bool CaptureI420_YUV::open(int frameW, int frameH, bool color) {
     DH_Uint8 *pPhyAddr, *pVirAddr = NULL;
     DH_Uint8 dumpPath[] = "/home/";
 
-  
     //2.Get YUV channel capability
 	DHOP_YUV_CapInfo yuvCap;
 	DH_Int32 yuvChn = 0;
     memset(&yuvCap, 0, sizeof(DHOP_YUV_CapInfo));
     ret = DHOP_YUV_getChnCaps(yuvChn, &yuvCap);
-    if(0 != ret)
-    {
+    if(0 != ret) {
         DHOP_LOG_ERROR("DHOP_YUV_getChnCaps fail with %#x\n", ret);
         return ret;
     }
@@ -166,8 +162,7 @@ bool CaptureI420_YUV::open(int frameW, int frameH, bool color) {
     memset(&yuvOpenPrm, 0, sizeof(yuvOpenPrm));
     yuvOpenPrm.channel = 0;
     ret = DHOP_YUV_open(&yuvOpenPrm, &yuvHdl);
-    if(0 != ret)
-    {
+    if(0 != ret) {
         DHOP_LOG_ERROR("DHOP_YUV_open fail with %#x\n", ret);
         return ret;
     }
@@ -197,14 +192,12 @@ bool CaptureI420_YUV::open(int frameW, int frameH, bool color) {
     yuvOption.type = DHOP_YUV_OPT_DEPTH;
     yuvOption.option.depth = 1;
     ret = DHOP_YUV_setOption(yuvHdl, &yuvOption);
-    if(0 != ret)
-    {
+    if(0 != ret) {
         DHOP_LOG_ERROR("DHOP_YUV_setOption fail with %#x\n", ret);
         DHOP_YUV_close(&yuvHdl);
         return ret;
     }
 	DHOP_LOG_INFO("DHOP_YUV_setOption  success\n");
-
 
 	// char cap_prop[128];
 	// snprintf(cap_prop, 128, "resolution=%dx%d&sdk_format=I420", frameW, frameH);

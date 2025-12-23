@@ -53,7 +53,6 @@ bool traffiXInit(TraffCounter &traffixCounter);
 static void openSyslog(const char *app_name);
 static void closeSyslog();
 static void logCurDir();
-
 static void daemonize();
 
 /**
@@ -101,26 +100,6 @@ bool macIsCorrect() {
 * Binding for MAC end
 */
 
-#if DAHUA
-void InitDahua()
-{
-	DH_Int32 ret = -1;
-    DHOP_SYS_InitParam sysInitPrm;
-	 //1.Initialize Dhop system and register callback function
-    memset(&sysInitPrm, 0, sizeof(sysInitPrm));
-    sysInitPrm.onExitCallback = exitCbFunc;
-    ret = DHOP_SYS_init(&sysInitPrm);
-    if(0 != ret)
-    {
-        DHOP_LOG_ERROR("DHOP_SYS_init fail with %#x\n", ret);
-        return ret;
-    }
-	DHOP_LOG_setLevel(DHOP_LOG_LEVEL_DEBUG, DHOP_LOG_DEST_WEB);
-	DHOP_LOG_INFO("DHOP_SYS_init success\n");
-}
-#endif
-
-
 int main(int argc, char *argv[]) {
 	const char *app_name = basename(argv[0]);
 	openSyslog(app_name);
@@ -128,7 +107,19 @@ int main(int argc, char *argv[]) {
 	LOGINFO("%s: START. dirname: %s\n", app_name, app_path);
 
 #if DAHUA
-	InitDahua();
+	DH_Int32 ret = -1;
+    DHOP_SYS_InitParam sysInitPrm;
+
+	// Initialize Dhop system and register callback function
+    memset(&sysInitPrm, 0, sizeof(sysInitPrm));
+    sysInitPrm.onExitCallback = exitCbFunc;
+    ret = DHOP_SYS_init(&sysInitPrm);
+    if(0 != ret) {
+        DHOP_LOG_ERROR("DHOP_SYS_init fail with %#x\n", ret);
+        return ret;
+    }
+	DHOP_LOG_setLevel(DHOP_LOG_LEVEL_DEBUG, DHOP_LOG_DEST_WEB);
+	DHOP_LOG_INFO("DHOP_SYS_init success\n");
 #endif
 
 	/* Anti-debugging based on the ptrace system call */
@@ -257,7 +248,6 @@ int main(int argc, char *argv[]) {
 
 	return EXIT_SUCCESS;
 }
-
 
 bool commonInit(CaptureBase* &pCapt) {
 	if (pCapt) {
