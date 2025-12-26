@@ -101,12 +101,32 @@ bool macIsCorrect() {
 * Binding for MAC end
 */
 
+DH_Void exitCbFunc(DH_Void) {
+    return;
+}
 
 int main(int argc, char *argv[]) {
 	const char *app_name = basename(argv[0]);
 	openSyslog(app_name);
 	const char *app_path = dirname(argv[0]);
 	LOGINFO("%s: START. dirname: %s\n", app_name, app_path);
+
+// Initialization for Dahua
+#if DAHUA
+	DH_Int32 ret = -1;
+    DHOP_SYS_InitParam sysInitPrm;
+
+	// Initialize Dhop system and register callback function
+    memset(&sysInitPrm, 0, sizeof(sysInitPrm));
+    sysInitPrm.onExitCallback = exitCbFunc;
+    ret = DHOP_SYS_init(&sysInitPrm);
+    if(0 != ret) {
+        DHOP_LOG_ERROR("DHOP_SYS_init fail with %#x\n", ret);
+        return ret;
+    }
+	DHOP_LOG_setLevel(DHOP_LOG_LEVEL_DEBUG, DHOP_LOG_DEST_WEB);
+	DHOP_LOG_INFO("DHOP_SYS_init success\n");
+#endif
 
 	/* Anti-debugging based on the ptrace system call */
 	if (ptrace(PTRACE_TRACEME, 0, 0, 0) == -1) {

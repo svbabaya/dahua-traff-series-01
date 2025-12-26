@@ -37,4 +37,6 @@
 #define LOGINFO(fmt, args...) { syslog(LOG_INFO, fmt, ## args); printf(fmt, ## args); }
 #define LOGERR(fmt, args...) { syslog(LOG_CRIT, fmt, ## args); fprintf(stderr, fmt, ## args); }
 
+#define DAHUA 1
+
 #endif // __COMMON_H_
