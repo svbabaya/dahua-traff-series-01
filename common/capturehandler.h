@@ -7,6 +7,7 @@
 
 #include "dhop_sys.h"
 #include "dhop_log.h"
+#include "dhop_yuv.h"
 
 
 class CaptureBase {

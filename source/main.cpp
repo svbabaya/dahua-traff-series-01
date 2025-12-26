@@ -115,6 +115,7 @@ int main(int argc, char *argv[]) {
 #if DAHUA
 	DH_Int32 ret = -1;
     DHOP_SYS_InitParam sysInitPrm;
+	DHOP_YUV_CapInfo yuvCaps;
 
 	// Initialize Dhop system and register callback function
     memset(&sysInitPrm, 0, sizeof(sysInitPrm));
